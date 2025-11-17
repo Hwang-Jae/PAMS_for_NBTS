@@ -1069,9 +1069,9 @@ function startQrScanner() {
     if (!html5QrCodeScanner || html5QrCodeScanner.getState() === 1) { // 1 = NOT_STARTED
         
         const scannerConfig = {
-            fps: 10, 
+            fps: 30, 
             qrbox: (viewfinderWidth, viewfinderHeight) => {
-                const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.6; // 60%
+                const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.8; // 60%
                 return { width: size, height: size };
             },
             formatsToSupport: [
