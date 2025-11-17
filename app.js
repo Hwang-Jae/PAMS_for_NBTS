@@ -236,7 +236,8 @@ async function handleQrImage(e) {
     showLoading(true, 'QR 코드 분석 중...');
     
     // html5-qrcode 라이브러리를 파일 스캔 모드로 사용
-    const html5QrCode = new Html5Qrcode("qr-reader"); 
+    //const html5QrCode = new Html5Qrcode("qr-reader"); 
+    const html5QrCode = new Html5Qrcode("qr-file-scanner");
 
     try {
         // scanFile 메소드를 사용해 이미지 파일 분석
