@@ -1,0 +1,13 @@
+^XA 
+                ^CI28 
+                ^PW800 
+                ^LL400 
+
+                ^FO50,50^A0N,30,30^FD자산 관리 코드^FS
+                ^FO50,90^A0N,45,45^FD${line1}^FS
+                ^FO50,150^A0N,28,28^FD${line2}^FS
+
+                ^FO450,50^BQN,2,8^FDQA,${qrData}^FS
+
+                ^FO50,350^A0N,20,20^FD(주)엔비티에스 - 자산라벨 - 훼손주의^FS
+                ^XZ
