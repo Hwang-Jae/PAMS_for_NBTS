@@ -7,6 +7,7 @@ let html5QrCodeScanner;
 let scannerTargetInput = null;
 let qrCodeInstance = null;
 let ocrTargetInput = null;
+let qrFileTargetInput = null; // [신규] 이 줄을 추가하세요.
 
 let chartInstances = {
     warehouse: null,
@@ -184,26 +185,80 @@ function bindEvents() {
     });
     
     // --- 스캐너/OCR 이벤트 ---
-    $('#open-scanner-btn-product').onclick = () => {
+    /*$('#open-scanner-btn-product').onclick = () => {
         scannerTargetInput = document.querySelector('#asset-form input[name="product_code"]');
         startQrScanner();
+    };*/
+
+    $('#open-scanner-btn-product').onclick = () => {
+    qrFileTargetInput = document.querySelector('#asset-form input[name="product_code"]');
+    ocrTargetInput = null; // OCR 타겟 초기화
+    $('#ocr-file-input').click(); // 숨겨진 파일 입력을 클릭
     };
-    $('#open-scanner-btn-serial').onclick = () => {
+
+    /*$('#open-scanner-btn-serial').onclick = () => {
         scannerTargetInput = document.querySelector('#asset-form input[name="serial_number"]');
         startQrScanner();
+    };*/
+
+    $('#open-scanner-btn-serial').onclick = () => {
+    qrFileTargetInput = document.querySelector('#asset-form input[name="serial_number"]');
+    ocrTargetInput = null; // OCR 타겟 초기화
+    $('#ocr-file-input').click(); // 숨겨진 파일 입력을 클릭
     };
+
     $('#close-scanner-btn').onclick = () => stopQrScanner();
 
-    $('#open-ocr-btn-product').onclick = () => {
+    /*$('#open-ocr-btn-product').onclick = () => {
         ocrTargetInput = document.querySelector('#asset-form input[name="product_code"]');
         $('#ocr-file-input').click(); 
+    };*/
+
+    $('#open-ocr-btn-product').onclick = () => {
+    ocrTargetInput = document.querySelector('#asset-form input[name="product_code"]');
+    qrFileTargetInput = null; // [신규] QR 타겟 초기화
+    $('#ocr-file-input').click(); 
     };
+
     $('#open-ocr-btn-serial').onclick = () => {
         ocrTargetInput = document.querySelector('#asset-form input[name="serial_number"]');
         $('#ocr-file-input').click(); 
     };
     
-    $('#ocr-file-input').onchange = (e) => handleOcrImage(e);
+    //$('#ocr-file-input').onchange = (e) => handleOcrImage(e);
+    // [신규] 사진 파일에서 QR 코드를 분석하는 함수
+async function handleQrImage(e) {
+    const file = e.target.files[0];
+    if (!file || !qrFileTargetInput) {
+        return;
+    }
+
+    showLoading(true, 'QR 코드 분석 중...');
+    
+    // html5-qrcode 라이브러리를 파일 스캔 모드로 사용
+    const html5QrCode = new Html5Qrcode("qr-reader"); 
+
+    try {
+        // scanFile 메소드를 사용해 이미지 파일 분석
+        const decodedText = await html5QrCode.scanFile(file, /* showImage= */ false);
+        
+        if (decodedText) {
+            qrFileTargetInput.value = decodedText;
+            alertMsg('QR 코드를 인식하여 입력했습니다.');
+        } else {
+            alertMsg('사진에서 QR 코드를 찾지 못했습니다.', true);
+        }
+
+    } catch (err) {
+        console.error('QR File Scan Error:', err);
+        alertMsg('QR 코드 분석 중 오류가 발생했습니다: ' + err, true);
+    } finally {
+        showLoading(false); 
+        qrFileTargetInput = null; // 타겟 초기화
+    }
+}
+
+// (기존 handleOcrImage 함수는 이 아래에 위치 ...)
 
     // --- 라벨 모달 이벤트 ---
     $('#close-label-modal').onclick = () => {
@@ -1069,9 +1124,9 @@ function startQrScanner() {
     if (!html5QrCodeScanner || html5QrCodeScanner.getState() === 1) { // 1 = NOT_STARTED
         
         const scannerConfig = {
-            fps: 30, 
+            fps: 10, 
             qrbox: (viewfinderWidth, viewfinderHeight) => {
-                const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.8; // 60%
+                const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.6; // 60%
                 return { width: size, height: size };
             },
             formatsToSupport: [
